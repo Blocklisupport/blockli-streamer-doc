@@ -82,7 +82,10 @@ The /blockli/v1/streamer/watched endpoint is a custom REST API route in WordPres
 
 #### Request Parameters
 The endpoint expects the following JSON parameters to be included in the request:
-- id (required): The id of the video being played.
+
+- video_id (required): The id of the video being played.
+- user_id (required): The id of the user watching the video.
+- collection_id (optional): The current collection id to which the video belongs.
 - percentage (required): The percentage of the video that the user has watched (float value from 0 to 100).
 - completed (required): A boolean value indicating whether the user has completed watching the video (true if completed, false otherwise).
 
@@ -94,13 +97,25 @@ Error Response
 - Status: 404 Not Found
 - Content: JSON object with a failed property set to true.
 
-#### Action Hook
-`do_action( 'blockli_streamer_watched_submission', $id, $percentage, $completed );`
-The function triggers a custom action named blockli_streamer_watched_submission with the $percentage and $completed values as parameters. This allows other plugins or themes to hook into this action and perform additional processing or actions based on the submitted data.
+#### Action Hooks
+Blockli Streamer has two action hooks that other plugins or themes to extend and perform additional processing or actions based on the submitted video or collection data
+
+`do_action( 'blockli_streamer_video_progression', $video_id, $user_id, $percentage, $completed );`
+The function triggers a custom action named blockli_streamer_watched_submission with the $video_id, $user_id, $percentage and $completed values as parameters. .
+
+`do_action( 'blockli_streamer_collection_progression', $collection_id, $user_id, $percentage, $completed );`
+The function triggers a custom action named blockli_streamer_watched_submission with the $collection_id, $user_id, $percentage and $completed values as parameters.
 
 Usage
 ```
-add_action( 'blockli_streamer_watched_submission', 'custom_plugin_additional_processing', 10, 2 );
+add_action( 'blockli_streamer_video_progression', 'custom_plugin_additional_video_processing', 10, 4 );
+
+function custom_plugin_additional_video_processing( $video_id, $user_id, $percentage, $completed ) {
+    ...Add custom implementation.
+}
+```
+```
+add_action( 'blockli_streamer_collection_progression', 'custom_plugin_additional_collection_processing', 10, 4 );
 
 function custom_plugin_additional_processing( $id, $percentage, $completed ) {
     ...Add custom implementation.
